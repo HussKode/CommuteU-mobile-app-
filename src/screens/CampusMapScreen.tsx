@@ -16,9 +16,9 @@ const TMU_BUILDINGS = [
 ];
 
 const MAP_VIEWS = [
-  { label: "Main Campus", url: "https://maps.google.com/maps?q=17+Gould+St,+Toronto,+ON+M5B+2L5&output=embed&z=17" },
-  { label: "Transit Hubs", url: "https://maps.google.com/maps?q=Dundas+Station+Toronto&output=embed&z=16" },
-  { label: "Nearby Food", url: "https://maps.google.com/maps?q=restaurants+near+350+Victoria+St+Toronto&output=embed&z=16" },
+  { label: "Main Campus", url: "https://maps.google.com/maps?q=17+Gould+St,+Toronto,+ON+M5B+2L5&z=17" },
+  { label: "Transit Hubs", url: "https://maps.google.com/maps?q=Dundas+Station+Toronto&z=16" },
+  { label: "Nearby Food", url: "https://maps.google.com/maps?q=restaurants+near+350+Victoria+St+Toronto&z=16" },
 ];
 
 export default function CampusMapScreen() {
