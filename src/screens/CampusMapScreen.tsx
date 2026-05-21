@@ -1,29 +1,32 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Linking } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Linking, Platform } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 import { WebView } from "react-native-webview";
 import { Ionicons } from "@expo/vector-icons";
 import TMUHeader from "../components/shared/TMUHeader";
 
 const TMU_BUILDINGS = [
-  { name: "Student Learning Centre (SLC)", address: "341 Yonge St, Toronto", note: "Study spaces, Tim Hortons, student services" },
-  { name: "Eric Palin Hall (EPH)", address: "87 Gerrard St E", note: "Engineering & computing labs" },
-  { name: "Kerr Hall", address: "350 Victoria St", note: "Main campus hub, admin offices" },
-  { name: "Rogers Communications Centre (RCC)", address: "80 Gould St", note: "Journalism & media programs" },
-  { name: "Podium Building (POD)", address: "350 Victoria St", note: "Classrooms, lecture halls" },
-  { name: "Mattamy Athletic Centre (MAC)", address: "60 Carlton St", note: "Gym, ice rink, recreation" },
-  { name: "TMU Library", address: "350 Victoria St", note: "Research & quiet study" },
-  { name: "Daphne Cockwell Complex (DCC)", address: "288 Church St", note: "Health sciences" },
+  { name: "Student Learning Centre (SLC)", address: "341 Yonge St, Toronto", note: "Study spaces, Tim Hortons, student services", lat: 43.6561, lng: -79.3802 },
+  { name: "Eric Palin Hall (EPH)", address: "87 Gerrard St E", note: "Engineering & computing labs", lat: 43.6571, lng: -79.3789 },
+  { name: "Kerr Hall", address: "350 Victoria St", note: "Main campus hub, admin offices", lat: 43.6580, lng: -79.3780 },
+  { name: "Rogers Communications Centre (RCC)", address: "80 Gould St", note: "Journalism & media programs", lat: 43.6578, lng: -79.3793 },
+  { name: "Podium Building (POD)", address: "350 Victoria St", note: "Classrooms, lecture halls", lat: 43.6582, lng: -79.3778 },
+  { name: "Mattamy Athletic Centre (MAC)", address: "60 Carlton St", note: "Gym, ice rink, recreation", lat: 43.6617, lng: -79.3807 },
+  { name: "TMU Library", address: "350 Victoria St", note: "Research & quiet study", lat: 43.6579, lng: -79.3781 },
+  { name: "Daphne Cockwell Complex (DCC)", address: "288 Church St", note: "Health sciences", lat: 43.6566, lng: -79.3769 },
 ];
 
-const MAP_VIEWS = [
-  { label: "Main Campus", url: "https://maps.google.com/maps?q=17+Gould+St,+Toronto,+ON+M5B+2L5&output=embed&z=17" },
-  { label: "Transit Hubs", url: "https://maps.google.com/maps?q=Dundas+Station+Toronto&output=embed&z=16" },
-  { label: "Nearby Food", url: "https://maps.google.com/maps?q=restaurants+near+350+Victoria+St+Toronto&output=embed&z=16" },
+const MAP_REGIONS = [
+  { label: "Main Campus", lat: 43.6577, lng: -79.3788, delta: 0.008 },
+  { label: "Transit Hubs", lat: 43.6544, lng: -79.3807, delta: 0.012 },
+  { label: "Nearby Food", lat: 43.6577, lng: -79.3788, delta: 0.006 },
 ];
 
 export default function CampusMapScreen() {
   const [activeView, setActiveView] = useState(0);
   const [selectedBuilding, setSelectedBuilding] = useState<number | null>(null);
+
+  const region = MAP_REGIONS[activeView];
 
   return (
     <View style={{ flex: 1, backgroundColor: "#0a0f1a" }}>
@@ -32,7 +35,7 @@ export default function CampusMapScreen() {
 
         {/* Map tabs */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 12, gap: 8 }}>
-          {MAP_VIEWS.map((view, i) => (
+          {MAP_REGIONS.map((view, i) => (
             <TouchableOpacity key={i} onPress={() => setActiveView(i)}
               style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: activeView === i ? "#004C9B" : "#151f2e", borderWidth: 1, borderColor: activeView === i ? "#004C9B" : "rgba(255,220,0,0.2)" }}>
               <Text style={{ fontSize: 12, fontWeight: "600", color: "#FFDC00" }}>{view.label}</Text>
@@ -42,7 +45,33 @@ export default function CampusMapScreen() {
 
         {/* Map */}
         <View style={{ marginHorizontal: 20, borderRadius: 16, overflow: "hidden", borderWidth: 2, borderColor: "#004C9B", height: 360 }}>
-          <WebView source={{ uri: MAP_VIEWS[activeView].url }} style={{ flex: 1 }} scrollEnabled={false} />
+          {Platform.OS === 'web' ? (
+            <WebView
+              source={{ uri: `https://maps.google.com/maps?q=${region.lat},${region.lng}&z=16&output=embed` }}
+              style={{ flex: 1 }}
+              javaScriptEnabled={true}
+            />
+          ) : (
+            <MapView
+              style={{ flex: 1 }}
+              region={{
+                latitude: region.lat,
+                longitude: region.lng,
+                latitudeDelta: region.delta,
+                longitudeDelta: region.delta,
+              }}
+            >
+              {TMU_BUILDINGS.map((b, i) => (
+                <Marker
+                  key={i}
+                  coordinate={{ latitude: b.lat, longitude: b.lng }}
+                  title={b.name}
+                  description={b.address}
+                  pinColor="#004C9B"
+                />
+              ))}
+            </MapView>
+          )}
         </View>
 
         {/* Open in Google Maps */}
